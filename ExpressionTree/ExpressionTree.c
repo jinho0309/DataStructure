@@ -32,7 +32,6 @@ BTreeNode * MakeExpTree(char exp[]){
 	return Pop(&stack);
 	
 }
-int EvaluateExpTree(BTreeNode * bt);
 void ShowNodeData(int data)
 {
 	if(0<= data && data <=9)
@@ -50,10 +49,13 @@ void PreorderTraverse(BTreeNode *bt, VisitFuncPtr action){
 void InorderTraverse(BTreeNode *bt, VisitFuncPtr action){
 	if(bt==NULL)
 		return;
-	
+	if(bt->left!=NULL && bt->right != NULL)
+		printf(" ( ");
 	InorderTraverse(bt->left, ShowNodeData);
 	action(bt->data);
 	InorderTraverse(bt->right, ShowNodeData);
+		if(bt->left!=NULL && bt->right != NULL)
+		printf(" ) ");
 }
 void PostorderTraverse(BTreeNode *bt, VisitFuncPtr action){
 	if(bt==NULL)
@@ -76,11 +78,30 @@ void ShowInfixTypeExp(BTreeNode *bt){
 void ShowPostfixTypeExp(BTreeNode *bt){
 	PostorderTraverse(bt, ShowNodeData);
 }
-
+int EvaluateExpTree(BTreeNode * bt){
+	int op1, op2;
+	if(GetLeftSubTree(bt)==NULL && GetRightSubTree(bt)==NULL)
+		return GetData(bt);
+	op1 = EvaluateExpTree(GetLeftSubTree(bt));
+	op2 = EvaluateExpTree(GetRightSubTree(bt));
+	
+	switch(GetData(bt)){
+		case '+' :
+			return op1+op2;
+		case '-' :
+			return op1 - op2;
+		case '*' :
+			return op1* op2;
+		case '/' :
+			return op1/op2;
+	}
+	return 0;
+}
 int main(void){
 	char exp[] = "12+7*";
 	BTreeNode *eTree= MakeExpTree(exp);
 	ShowPrefixTypeExp(eTree);printf("\n");
 	ShowInfixTypeExp(eTree);printf("\n");
 	ShowPostfixTypeExp(eTree);printf("\n");
+	printf("%d ",EvaluateExpTree(eTree));
 }
